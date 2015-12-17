@@ -30,7 +30,7 @@ object KafkaUtilsBuild extends Build {
 
   lazy val offsetmonitor = Project("offsetmonitor", file("."), settings = offsetmonSettings)
 
-  def offsetmonSettings = sharedSettings ++ Seq(
+  def offsetmonSettings = sharedSettings ++ publishSettings ++ Seq(
     mergeStrategy in assembly := {
      case "about.html"                                => MergeStrategy.discard
      case x =>
@@ -50,4 +50,17 @@ object KafkaUtilsBuild extends Build {
     resolvers ++= Seq(
       "java m2" at "http://download.java.net/maven/2",
       "twitter repo" at "http://maven.twttr.com"))
+
+  def publishSettings = Seq(
+    publishTo := {
+      val nexus = "http://localhost:4567/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "nexus/content/repositories/snapshots")
+      else
+        Some("releases" at nexus + "nexus/content/repositories/releases")
+    },
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    pomIncludeRepository := { _ => false }
+  )
 }
