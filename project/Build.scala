@@ -30,7 +30,7 @@ object KafkaUtilsBuild extends Build {
 
   lazy val offsetmonitor = Project("offsetmonitor", file("."), settings = offsetmonSettings)
 
-  def offsetmonSettings = sharedSettings ++ publishSettings ++ Seq(
+  def offsetmonSettings = sharedSettings ++ publishAssembly ++ publishSettings ++ Seq(
     mergeStrategy in assembly := {
      case "about.html"                                => MergeStrategy.discard
      case x =>
@@ -50,6 +50,14 @@ object KafkaUtilsBuild extends Build {
     resolvers ++= Seq(
       "java m2" at "http://download.java.net/maven/2",
       "twitter repo" at "http://maven.twttr.com"))
+
+  def publishAssembly = {
+    artifact in (Compile, assembly) := {
+      val art = (artifact in (Compile, assembly)).value
+      art.copy(`classifier` = Some("assembly"))
+    }
+    addArtifact(artifact in (Compile, assembly), assembly)
+  }
 
   def publishSettings = Seq(
     publishTo := {
